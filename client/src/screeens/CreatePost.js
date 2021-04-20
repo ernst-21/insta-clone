@@ -13,7 +13,10 @@ const CreatePost = () => {
     if (url) {
       fetch('/createpost', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('jwt') },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + localStorage.getItem('jwt')
+        },
         body: JSON.stringify({
           title,
           body,
