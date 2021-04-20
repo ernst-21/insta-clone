@@ -8,7 +8,7 @@ router.get('/allposts', requireLogin, (req, res) => {
   Post.find()
     .populate('postedBy', '_id name')
     .then((posts) => {
-      res.json({ posts });
+      res.json({posts});
     })
     .catch((err) => {
       console.log(err);
@@ -16,9 +16,9 @@ router.get('/allposts', requireLogin, (req, res) => {
 });
 
 router.post('/createpost', requireLogin, (req, res) => {
-  const { title, body, pic } = req.body;
+  const {title, body, pic} = req.body;
   if (!title || !body || !pic) {
-    return res.status(422).json({ error: 'Please enter all required fields' });
+    return res.status(422).json({error: 'Please enter all required fields'});
   }
   req.user.password = undefined;
   const post = new Post({
@@ -30,7 +30,7 @@ router.post('/createpost', requireLogin, (req, res) => {
   post
     .save()
     .then((result) => {
-      res.json({ post: result });
+      res.json({post: result});
     })
     .catch((err) => {
       console.log(err);
@@ -38,14 +38,38 @@ router.post('/createpost', requireLogin, (req, res) => {
 });
 
 router.get('/myposts', requireLogin, (req, res) => {
-  Post.find({ postedBy: req.user._id })
+  Post.find({postedBy: req.user._id})
     .populate('postedBy', '_id name')
     .then((mypost) => {
-      res.json({ mypost });
+      res.json({mypost});
     })
     .catch((err) => {
       console.log(err);
     });
 });
+
+router.put('/like', requireLogin, (req, res) => {
+  Post.findByIdAndUpdate(req.body.postId, {
+    $push: {likes: req.user._id}
+  }, {new:true}).exec((err, result) => {
+    if (err) {
+      return res.status(422).json({error: err})
+    } else {
+      res.json(result)
+    }
+  })
+})
+
+router.put('/unlike', requireLogin, (req, res) => {
+  Post.findByIdAndUpdate(req.body.postId, {
+    $pull: {likes: req.user._id}
+  }, {new:true}).exec((err, result) => {
+    if (err) {
+      return res.status(422).json({error: err})
+    } else {
+      res.json(result)
+    }
+  })
+})
 
 module.exports = router;
