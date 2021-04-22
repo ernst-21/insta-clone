@@ -46,6 +46,11 @@ const NavBar = () => {
                   Create Post
                 </Link>
               </li>
+              <li>
+                <Link to="/myfollowingpost" style={{ color: 'black' }}>
+                  Following Posts
+                </Link>
+              </li>
               <button
                 type="button"
                 className="btn waves-effect waves-light #e57373 red lighten-2"

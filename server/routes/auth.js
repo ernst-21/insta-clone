@@ -8,7 +8,7 @@ const { JWT_SECRET } = require('../keys');
 const requireLogin = require('../middlewares/requireLogin');
 
 router.post('/signup', (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, pic } = req.body;
   if (!email || !name || !password) {
     return res.status(422).json({ error: 'Please enter all required fields' });
   }
@@ -23,7 +23,8 @@ router.post('/signup', (req, res) => {
           const user = new User({
             email,
             name,
-            password: hashedPassword
+            password: hashedPassword,
+            pic
           });
           user.save().then((user) => {
             res.json({ message: 'Signup successful' });
@@ -55,8 +56,8 @@ router.post('/signin', (req, res) => {
           if (doMatch) {
             //res.json({ message: 'Login successful' });
             const token = jwt.sign({ _id: savedUser._id }, JWT_SECRET);
-            const { _id, name, email } = savedUser;
-            res.json({ token, user: { _id, name, email } });
+            const { _id, name, email, followers, following, pic } = savedUser;
+            res.json({ token, user: { _id, name, email, followers, following, pic } });
           } else {
             return res.status(422).json({ error: 'Invalid email or password' });
           }

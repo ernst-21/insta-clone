@@ -6,6 +6,7 @@ import Signup from '../screeens/Signup';
 import Profile from '../screeens/Profile';
 import CreatePost from '../screeens/CreatePost';
 import UserProfile from '../screeens/UserProfile';
+import SubscribedPosts from '../screeens/SubscribedPosts';
 import { UserContext } from '../context/userContext';
 
 const Routing = () => {
@@ -40,6 +41,9 @@ const Routing = () => {
       </Route>
       <Route path="/profile/:userid">
         <UserProfile />
+      </Route>
+      <Route path="/myfollowingpost">
+        <SubscribedPosts />
       </Route>
     </Switch>
   );

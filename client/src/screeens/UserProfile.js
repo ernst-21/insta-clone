@@ -1,25 +1,28 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { useParams } from 'react-router-dom';
-import { UserContext } from '../context/userContext';
+import React, {useEffect, useState, useContext} from 'react';
+import {useParams} from 'react-router-dom';
+import {UserContext} from '../context/userContext';
 
-const existingUser = JSON.parse(localStorage.getItem('user'));
+
 
 const UserProfile = () => {
+  const existingUser = JSON.parse(localStorage.getItem('user'));
+  const {dispatch} = useContext(UserContext);
+  const {userid} = useParams();
+  const [user, setUser] = useState(existingUser);
   const [userProfile, setUserProfile] = useState(null);
   const [isFollowed, setIsFollowed] = useState(null);
-  const [user, setUser] = useState(existingUser);
-  const { dispatch } = useContext(UserContext);
-  const { userid } = useParams();
+
+
 
   useEffect(() => {
     fetch(`/user/${userid}`, {
-      headers: { Authorization: 'Bearer ' + localStorage.getItem('jwt') }
+      headers: {Authorization: 'Bearer ' + localStorage.getItem('jwt')}
     })
       .then((res) => res.json())
       .then((result) => {
         setUserProfile(result);
-        if (user) {
-          setIsFollowed(result.user.followers.includes(user._id));
+        if (user && user.following.includes(userid)) {
+          setIsFollowed(true);
         } else {
           setUser(null);
           setIsFollowed(false);
@@ -42,9 +45,10 @@ const UserProfile = () => {
       .then((data) => {
         dispatch({
           type: 'UPDATE',
-          payload: { following: data.following, followers: data.followers }
+          payload: {following: data.following, followers: data.followers}
         });
-
+        localStorage.setItem('user', JSON.stringify(data));
+        setUser(data);
         setUserProfile((prevState) => {
           return {
             ...prevState,
@@ -74,8 +78,10 @@ const UserProfile = () => {
       .then((data) => {
         dispatch({
           type: 'UPDATE',
-          payload: { following: data.following, followers: data.followers }
+          payload: {following: data.following, followers: data.followers}
         });
+        localStorage.setItem('user', JSON.stringify(data));
+        setUser(null);
         setUserProfile((prevState) => {
           const newFollower = prevState.user.followers.filter(
             (item) => item !== data._id
@@ -95,7 +101,7 @@ const UserProfile = () => {
   return (
     <>
       {userProfile ? (
-        <div style={{ maxWidth: '550px', margin: '0px auto' }}>
+        <div style={{maxWidth: '550px', margin: '0px auto'}}>
           <div
             style={{
               display: 'flex',
@@ -106,7 +112,7 @@ const UserProfile = () => {
           >
             <div>
               <img
-                src="https://images.unsplash.com/photo-1542246338-3d81305c2cd5?ixid=MnwxMjA3fDB8MHx0b3BpYy1mZWVkfDE1fHRvd0paRnNrcEdnfHxlbnwwfHx8fA%3D%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+                src={userProfile ? userProfile.user.pic : 'loading'}
                 alt="man"
                 style={{
                   width: '160px',
@@ -116,8 +122,7 @@ const UserProfile = () => {
               />
             </div>
             <div>
-              <h4>{userProfile.user.name}</h4>
-              <h4>{userProfile.user.email}</h4>
+              <h4>{userProfile ? userProfile.user.name : 'Loading...'}</h4>
               <div
                 style={{
                   display: 'flex',
@@ -135,7 +140,7 @@ const UserProfile = () => {
               {isFollowed ? (
                 <button
                   type="button"
-                  style={{ margin: '.75rem' }}
+                  style={{margin: '.75rem'}}
                   className="btn waves-effect waves-light #42a5f5 blue lighten-1"
                   onClick={() => unfollowUser()}
                 >
@@ -145,7 +150,7 @@ const UserProfile = () => {
               ) : (
                 <button
                   type="button"
-                  style={{ margin: '.75rem' }}
+                  style={{margin: '.75rem'}}
                   className="btn waves-effect waves-light #42a5f5 blue lighten-1"
                   onClick={() => followUser()}
                 >
