@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { UserContext } from '../context/userContext';
+import {Link} from 'react-router-dom';
 
 const Home = () => {
   const [data, setData] = useState([]);
+  const [value, setValue] = useState('');
   const { state } = useContext(UserContext);
   const isMounted = useRef(false);
 
@@ -89,7 +91,36 @@ const Home = () => {
     })
       .then((res) => res.json())
       .then((result) => {
-        console.log(result);
+        const newData = data.map((item) => {
+          if (item._id === result._id) {
+            return result;
+          } else {
+            return item;
+          }
+        });
+        setData(newData);
+        setValue('');
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const unComment = (postId, id, text) => {
+    fetch('/uncomment', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + localStorage.getItem('jwt')
+      },
+      body: JSON.stringify({
+        postId,
+        id,
+        text
+      })
+    })
+      .then((res) => res.json())
+      .then((result) => {
         const newData = data.map((item) => {
           if (item._id === result._id) {
             return result;
@@ -113,7 +144,6 @@ const Home = () => {
     })
       .then((res) => res.json())
       .then((result) => {
-        console.log(result);
         const newData = data.filter((item) => {
           return item._id !== result._id;
         });
@@ -127,7 +157,7 @@ const Home = () => {
         return (
           <div className="card home-card" key={item._id}>
             <h5 style={{ marginLeft: '1rem' }}>
-              {item.postedBy.name}
+              <Link to={item.postedBy._id !== state._id ? `/profile/${item.postedBy._id}` : '/profile'}>{item.postedBy.name}</Link>
               {item.postedBy._id === state._id && (
                 <i
                   style={{ float: 'right' }}
@@ -168,6 +198,17 @@ const Home = () => {
                       {record.postedBy.name}
                     </span>
                     {' ' + record.text}
+                    {record.postedBy._id === state._id && (
+                      <i
+                        style={{ float: 'right' }}
+                        className="material-icons"
+                        onClick={() =>
+                          unComment(item._id, record._id, record.text)
+                        }
+                      >
+                        delete
+                      </i>
+                    )}
                   </h6>
                 );
               })}
@@ -177,7 +218,12 @@ const Home = () => {
                   makeComment(e.target[0].value, item._id);
                 }}
               >
-                <input type="text" placeholder="add a comment" />
+                <input
+                  type="text"
+                  value={value}
+                  placeholder='add a comment'
+                  onChange={e => setValue(e.target.value)}
+                />
               </form>
             </div>
           </div>

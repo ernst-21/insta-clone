@@ -23,5 +23,7 @@
     "semi": true,
     "trailingComma": "none"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/express": "^4.17.11"
+  }
 }

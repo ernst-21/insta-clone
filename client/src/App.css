@@ -58,3 +58,12 @@ code {
   margin-right: 1rem;
 }
 
+i:hover {
+  cursor: pointer;
+}
+
+.preloader-wrapper {
+  margin-left: 50%;
+  margin-top: 25%;
+}
+
